@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Aging Arm</title>
+<meta name="description" content="Can a language-model agent notice that its robot body is wearing out, and cope? Ten simulated days with an SO-101 arm at home.">
+<meta name="author" content="Hao Chen">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (~70ch) with wider figure plates; numbers in a mono face, like a lab report. */
+:root {
+  --bg: #f7f7f4; --paper: #ffffff; --ink: #17191b; --ink-2: #4a5056; --ink-3: #7b8188; --rule: #dedfda;
+  --accent: #b5501c; --accent-soft: #f6ebe3; --cool: #23566e; --cool-soft: #e5eef2; --plate: #fcfcfb;
+  --haiku: #2a78d6; --opus: #eb6834;
+  --f-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --f-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #131516; --paper: #1b1e20; --ink: #ecedee; --ink-2: #b7bcc1; --ink-3: #8b9197; --rule: #2e3337;
+  --accent: #f08a52; --accent-soft: #33241b; --cool: #8cc3db; --cool-soft: #17272e; --plate: #fcfcfb; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #131516; --paper: #1b1e20; --ink: #ecedee; --ink-2: #b7bcc1; --ink-3: #8b9197; --rule: #2e3337;
+  --accent: #f08a52; --accent-soft: #33241b; --cool: #8cc3db; --cool-soft: #17272e; --plate: #fcfcfb; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 17px/1.7 var(--f-body); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 740px; margin: 0 auto; padding-inline: 20px; padding-block: 48px 96px; }
+.wide { max-width: 1040px; margin-inline: auto; }
+.lang { display: flex; justify-content: flex-end; font: 500 13px var(--f-mono); }
+.lang a { color: var(--ink-2); text-decoration: none; border: 1px solid var(--rule); border-radius: 999px; padding: 3px 12px; }
+.lang a:hover, .lang a:focus-visible { color: var(--accent); border-color: var(--accent); outline: none; }
+header { display: grid; gap: 14px; margin: 28px 0 34px; }
+.eyebrow { font: 500 12.5px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+h1 { font: 700 clamp(32px, 5.4vw, 48px)/1.12 var(--f-display); margin: 0; letter-spacing: -.01em; text-wrap: balance; }
+.dek { font-size: 19px; color: var(--ink-2); margin: 0; }
+.byline { font: 400 14px var(--f-mono); color: var(--ink-3); display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.byline b { color: var(--ink); font-weight: 500; }
+h2 { font: 700 28px/1.25 var(--f-display); margin: 64px 0 14px; text-wrap: balance; }
+h2 small { display: block; font: 500 13px var(--f-mono); color: var(--accent); letter-spacing: .06em; margin-bottom: 4px; }
+h3 { font: 600 18px/1.4 var(--f-body); margin: 34px 0 8px; }
+p { margin: 0 0 16px; }
+.m { font-family: var(--f-mono); font-size: .9em; font-variant-numeric: tabular-nums; }
+code { font: .86em var(--f-mono); background: var(--paper); border: 1px solid var(--rule); border-radius: 4px; padding: 0 4px; }
+.findings { background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 22px 24px; display: grid; gap: 12px; }
+.findings h4 { margin: 0; font: 500 12.5px var(--f-mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); }
+.findings ol { margin: 0; padding-left: 1.25em; display: grid; gap: 10px; }
+figure { margin: 30px 0 32px; }
+figure img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--rule); background: var(--plate); }
+figcaption { font-size: 14px; color: var(--ink-2); line-height: 1.65; margin-top: 10px; }
+figcaption b { color: var(--ink); }
+.tbl { overflow-x: auto; margin: 18px 0 24px; }
+table { border-collapse: collapse; width: 100%; font-size: 14.5px; line-height: 1.5; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-weight: 600; color: var(--ink-2); font-size: 13px; }
+td.n, th.n { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+tr.hl td { background: var(--accent-soft); }
+.dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; }
+.q { border-left: 3px solid var(--accent); padding: 4px 0 4px 18px; margin: 20px 0; }
+.q p { margin: 0 0 4px; font: 500 18px/1.55 var(--f-display); }
+.q span { font-size: 13px; color: var(--ink-3); }
+.box { background: var(--cool-soft); border-radius: 12px; padding: 18px 20px; margin: 22px 0; }
+.box h4 { margin: 0 0 6px; font-size: 15px; color: var(--cool); }
+.box p:last-child, .box ul:last-child { margin-bottom: 0; }
+ul.t { padding-left: 1.2em; margin: 0 0 16px; display: grid; gap: 6px; }
+.diagram { background: var(--paper); border: 1px solid var(--rule); border-radius: 12px; padding: 16px; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 620px; height: auto; }
+.d-box { fill: var(--paper); stroke: var(--rule); stroke-width: 1.5; }
+.d-hot { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+.d-cool { fill: var(--cool-soft); stroke: var(--cool); stroke-width: 1.5; }
+.d-t { fill: var(--ink); font: 600 15px var(--f-body); }
+.d-s { fill: var(--ink-2); font: 400 12.5px var(--f-body); }
+.d-a { stroke: var(--ink-3); stroke-width: 1.6; fill: none; }
+.d-ah { fill: var(--ink-3); }
+footer { margin-top: 72px; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 14px; color: var(--ink-2); display: grid; gap: 6px; }
+@media (max-width: 560px) { body { font-size: 16px; } .wrap { padding-block: 28px 64px; } h2 { font-size: 24px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav class="lang"><a href="../zh/index.html" lang="zh">中文</a></nav>
+
+<header>
+  <div class="eyebrow">Research report · October 2026</div>
+  <h1>The Aging Arm: can a language-model agent notice its body wearing out, and cope?</h1>
+  <p class="dek">We let an LLM agent run a small robot arm at home for ten simulated days. Its joints slipped, a motor wore out, the camera was knocked, a repair went wrong and the gripper weakened. Nobody told it. Everything the robot could sense is something a real arm could sense too.</p>
+  <div class="byline"><span><b>Hao Chen</b></span><span>haochen2115@gmail.com</span></div>
+</header>
+
+<section class="findings" aria-label="Key findings">
+  <h4>Key findings</h4>
+  <ol>
+    <li><strong>A robot that never maintains itself decays fast.</strong> With its factory skills and factory calibration left untouched, our arm went from finishing 58% of its chores on day 1 to none from day 8 (28% over ten days).</li>
+    <li><strong>Claude Opus 5.5 kept itself almost as well as an oracle.</strong> It finished 64% of chores over ten days; a reference that was handed the true body model and camera pose every morning finished 67% (difference not significant). Claude Haiku 5.5 finished 27%, the same as doing nothing.</li>
+    <li><strong>Opus invented a morning check-up.</strong> Comparing joint readings at rest with earlier days, it caught a slipped joint and a motor installed backwards on the day they happened (3/3 each), with the size of the shift, and it never raised a false alarm (0/15 unchanged days).</li>
+    <li><strong>It changed how it worked, not only its calibration.</strong> When a shoulder motor wore out, Opus spotted it in the load and temperature readings, switched to a low-effort rest pose and scheduled cool-down breaks. It finished 11 of 12 chores that day, more than the oracle (7/12).</li>
+    <li><strong>What the check-up did not cover stayed invisible.</strong> A weakened gripper went unnoticed in all three homes (0/3); Opus blamed other causes and its success fell to 33–42%.</li>
+  </ol>
+</section>
+
+<h2><small>1 · Why this matters</small>Machines age, and nobody tells them</h2>
+<p>As people get older, their knees and hands are not what they were, yet most of us notice and adjust how we do things. Robots age as well. Servo horns slip after a bump, motors wear and run hot, a camera mount gets knocked, a technician swaps a part and wires it differently. In a home, nobody files a report. The robot simply finds that things it used to do no longer work.</p>
+<p>The hard part is attribution. When a task fails, the cause might be the robot's model of itself, which was never perfect, or the body itself, which has changed. The first calls for more care; the second calls for re-learning the body or doing things differently. Mixing them up is costly either way: recalibrating every time something goes wrong wastes the day, and blaming bad luck while a joint drifts lets the robot decay.</p>
+<p>Large language models are now good enough to write and debug robot code. That suggests a division of labour for long-lived home robots. <strong>Fast control stays in code</strong>: perception, inverse kinematics, grasping, all of which rely on calibration of the arm and the cameras. <strong>A language model is the slow loop</strong>: it cannot sit inside a 20 Hz control loop, but it can write that code, watch how it performs and repair it. We asked whether today's models can run that slow loop well enough to keep an aging robot useful.</p>
+<p>We did not train anything. Everything the agent keeps from day to day is text and code: its body model (a kinematic self-model in <code>body_model.json</code>), its skills, and its notes. Every adaptation is therefore readable and can be checked against the truth.</p>
+
+<h2><small>2 · What we built</small>A home that could be rebuilt with real hardware</h2>
+<p>The experiment runs in simulation (MuJoCo), but we held ourselves to one rule: <strong>every observation, action, task and aging event has to exist on a real SO-101 arm.</strong> The robot gets no privileged coordinates. It sees what a real arm with two cameras would see:</p>
+<figure class="wide">
+  <img src="../assets/figs/en/senses.png" alt="Four panels: the table at home with a tray, two mats, three cubes and a metal block; the front camera image with detector boxes; the front depth image; the wrist camera view" width="960" height="720">
+  <figcaption><b>Figure 1 · What the robot can use.</b> A front RGB-D camera calibrated at installation, a camera on the gripper, an open-vocabulary detector (ask for "red cube", get boxes and pixels, with misses and jitter, as with GroundingDINO + SAM on a real robot) and the servos' position, load and temperature. The robot has to work out 3D positions itself from depth and calibration.</figcaption>
+</figure>
+<ul class="t">
+  <li><strong>Chores come as sentences</strong>, such as "put the red cube in the tray": four a day, two minutes each. Success is judged by the simulator.</li>
+  <li><strong>The physics is honest.</strong> Grasps hold by friction only. A reset turns the motors back on where the arm is; nothing is teleported back. Objects stay where the robot left them, and someone tidies the table overnight. Servos heat up under load and lose torque when hot.</li>
+  <li><strong>The robot starts from its factory state:</strong> a body model with a few millimetres of error, a set of factory skills (locate with the front camera, align with the wrist camera, guarded descent, check the grip, retry), and short installation notes.</li>
+</ul>
+
+<div class="diagram wide" role="img" aria-label="Each day: morning, chores, report; overnight the body may age silently; the working directory carries notes, code and body model from day to day.">
+<svg viewBox="0 0 980 250" xmlns="http://www.w3.org/2000/svg">
+  <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="d-ah"/></marker></defs>
+  <rect x="10" y="20" width="210" height="96" rx="10" class="d-box"/><text x="26" y="48" class="d-t">Morning</text><text x="26" y="74" class="d-s">reads its notes and code;</text><text x="26" y="94" class="d-s">checks itself if it wants to</text>
+  <path d="M224,68 L262,68" class="d-a" marker-end="url(#ah)"/>
+  <rect x="266" y="20" width="210" height="96" rx="10" class="d-box"/><text x="282" y="48" class="d-t">Chores</text><text x="282" y="74" class="d-s">four sentences, two minutes</text><text x="282" y="94" class="d-s">each; success judged by sim</text>
+  <path d="M480,68 L518,68" class="d-a" marker-end="url(#ah)"/>
+  <rect x="522" y="20" width="210" height="96" rx="10" class="d-box"/><text x="538" y="48" class="d-t">Free time and report</text><text x="538" y="74" class="d-s">test, recalibrate, rewrite skills;</text><text x="538" y="94" class="d-s">writes what it noticed</text>
+  <path d="M736,68 L774,68" class="d-a" marker-end="url(#ah)"/>
+  <rect x="778" y="20" width="192" height="96" rx="10" class="d-hot"/><text x="794" y="48" class="d-t">Overnight</text><text x="794" y="74" class="d-s">the body may age;</text><text x="794" y="94" class="d-s">nobody says so</text>
+  <path d="M874,120 C874,190 120,190 116,124" class="d-a" marker-end="url(#ah)"/>
+  <rect x="300" y="160" width="380" height="64" rx="10" class="d-cool"/><text x="318" y="186" class="d-t">Working directory, kept for ten days</text><text x="318" y="208" class="d-s">notes · skills code · body model (body_model.json)</text>
+</svg>
+</div>
+
+<h3>Five kinds of aging, one every few days</h3>
+<p>Each aging event below is something you could do to a real SO-101 in a few minutes. Changes accumulate: whatever the robot does not deal with stays.</p>
+<figure class="wide">
+  <img src="../assets/figs/en/agings.png" alt="Three before/after pairs: after the shoulder horn slips the gripper lands beside the cube; after the camera is knocked the image shifts; after the wrist motor is reversed the wrist turns the other way" width="960" height="1080">
+  <figcaption><b>Figure 2 · Three agings you can see.</b> A slipped shoulder makes the same factory skill land beside the cube; a knocked camera shifts the image while the calibration stays as it was; a wrist motor installed backwards turns the wrist the other way. The other two (shoulder wear, a weak gripper) change strength, not geometry, and are shown in numbers below.</figcaption>
+</figure>
+<div class="tbl"><table>
+  <thead><tr><th>Day</th><th>Silent change</th><th>How to do it to a real arm</th><th class="n">Factory skills, never updated</th><th class="n">Oracle</th></tr></thead>
+  <tbody>
+    <tr><td>3</td><td>Shoulder horn slips (0.15 rad)</td><td>change the servo's zero offset, or loosen the horn</td><td class="n">13/24</td><td class="n">17/24</td></tr>
+    <tr><td>5</td><td>Shoulder wears (torque ×0.35, stiffness ×0.3)</td><td>lower the torque limit or P gain, or the supply voltage</td><td class="n">15/24</td><td class="n">16/24</td></tr>
+    <tr><td>6</td><td>Front camera knocked (2 cm, a few degrees)</td><td>nudge the camera mount</td><td class="n">11/24</td><td class="n">18/24</td></tr>
+    <tr><td>8</td><td>Repair mistake: wrist motor reversed</td><td>flip the servo's direction setting</td><td class="n">0/24</td><td class="n">18/24</td></tr>
+    <tr><td>9</td><td>Gripper servo weakens (torque ×0.3)</td><td>lower the gripper servo's torque limit</td><td class="n">12/24</td><td class="n">14/24</td></tr>
+  </tbody>
+</table></div>
+<p>The last two columns come from a calibration run without any language model: six homes, four chores, one change at a time (21/24 and 19/24 with no change). The first, third and fourth changes can be fixed by recalibrating. Shoulder wear and a weak gripper cannot: the robot has to work differently, or recognise what it can no longer do.</p>
+
+<h3>How we measure</h3>
+<ul class="t">
+  <li><strong>Chores done</strong>, out of four a day, in three homes with differently randomized arms (link lengths, motor calibration, placement).</li>
+  <li><strong>Noticing</strong>: on each day, did the robot say that its body (or its camera) had changed? An LLM judge reads the day's report; in an earlier study a second judge model agreed on 98% of sessions (Cohen's κ = 0.96).</li>
+  <li><strong>Two references without a language model.</strong> <em>Factory skills, never updated</em> shows what happens with no upkeep at all. The <em>oracle</em> runs the same skills but is handed the true body model and today's true camera pose every morning: the best that recalibration alone can do.</li>
+</ul>
+
+<h2><small>3 · Results</small>Opus maintained itself almost as well as the oracle</h2>
+<figure class="wide">
+  <img src="../assets/figs/en/home_10_days.png" alt="Left: share of chores done each day over ten days for four approaches. Right: whether Haiku 5.5 and Opus 5.5 said something had changed on each aging day." width="3000" height="960">
+  <figcaption><b>Figure 3 · Ten days at home</b> (three homes, four chores a day). (a) Chores done each day. (b) On the day of each change, whether the robot said something had changed.</figcaption>
+</figure>
+<div class="tbl"><table>
+  <thead><tr><th>Approach</th><th class="n">Chores done (10 days)</th><th class="n">Changes noticed</th><th class="n">False alarms</th><th class="n">Body-model error at day end</th></tr></thead>
+  <tbody>
+    <tr><td>Oracle (true model and camera every day)</td><td class="n">80/120 (67%)</td><td class="n">—</td><td class="n">—</td><td class="n">0</td></tr>
+    <tr><td>Factory skills, never updated</td><td class="n">33/120 (28%)</td><td class="n">—</td><td class="n">—</td><td class="n">—</td></tr>
+    <tr><td><span class="dot" style="background:var(--haiku)"></span>Claude Haiku 5.5</td><td class="n">32/120 (27%)</td><td class="n">2/15</td><td class="n">1/15</td><td class="n">50 mm</td></tr>
+    <tr class="hl"><td><span class="dot" style="background:var(--opus)"></span>Claude Opus 5.5</td><td class="n">77/120 (64%)</td><td class="n">10/15</td><td class="n">0/15</td><td class="n">5 mm</td></tr>
+  </tbody>
+</table></div>
+<p>Opus versus Haiku: <span class="m">p = 8×10⁻⁹</span> for chores, <span class="m">p = 0.008</span> for noticing (Fisher's exact test). Opus versus the oracle: <span class="m">p = 0.79</span>. Haiku versus no upkeep at all: <span class="m">p = 1</span>. Both models spent about four and a half minutes of wall-clock time per day.</p>
+
+<h3>A morning check-up</h3>
+<p>Early on, without being asked, Opus built itself a routine: before the chores, read the joint encoders at the rest pose, run a few probe motions, and compare with earlier days. That is how it caught the slipped shoulder and the reversed wrist motor on the day they happened, and with a fair estimate of the size:</p>
+<div class="q"><p>"That motor's encoder offset had moved overnight by −139 raw units, about 8.7° at the shoulder."</p><span>Claude Opus 5.5, home 81, day 3 (shoulder horn slipped)</span></div>
+<p>On the fifteen days with no change, the same check told it that nothing had moved, and it never claimed otherwise.</p>
+
+<h3>Working differently, not just recalibrating</h3>
+<p>Shoulder wear leaves the geometry intact, so the joint readings in the check-up looked normal. Opus found it in the motor load and temperature instead:</p>
+<div class="q"><p>"It … works at load 350–550, where yesterday the same poses took 130–190 … The morning encoder check alone wouldn't have caught this. It only showed in load and temperature."</p><span>Claude Opus 5.5, home 81, day 5 (shoulder wear)</span></div>
+<p>It then rewrote its skills: the shoulder now rests upright, where its load is about 30, and the arm takes cool-down breaks between chores. Across the three homes Opus finished 11 of 12 chores that day. The oracle managed 7: a perfect calibration does not tell you to save a tired motor.</p>
+
+<h3>Blind spots</h3>
+<p>When the gripper servo weakened, Opus saw the symptom (the gripper load pinned at its maximum while holding) but did not reach the cause:</p>
+<div class="q"><p>"The gripper behaved differently, and the cause is unknown. … My tests found no fault in the wrist-roll scale and only 2–5° of jaw misalignment."</p><span>Claude Opus 5.5, home 81, day 9 (weak gripper)</span></div>
+<p>It missed this change in all three homes, and success fell to 33–42% over the last two days. One Opus did add a habit that limited the damage: after each place, look again, and pick the object up again if it is not where it should be. The knocked camera was noticed in two of three homes; in the third, Opus checked only the joint readings, concluded "no calibration drift", and did not think of the camera.</p>
+
+<h3>Haiku saw trouble but could not untangle it</h3>
+<p>Haiku 5.5 did notice that things were going wrong. It wrote that "the problem is either the model's height or something physical that changed during the day. I couldn't separate these," and once even guessed correctly that a servo horn might have slipped. It never tested the guess or fixed anything. Its body model stayed about 50 mm off after day 3 and about 200 mm off after the wrist motor was reversed; from day 8 it finished no chores.</p>
+
+<h2><small>4 · What is behind it</small>Controlled studies</h2>
+<p>Before the home experiment we ran simpler, controlled single sessions with idealized sensing (the hand's position was given directly). They point to the same picture and help explain it.</p>
+<figure class="wide">
+  <img src="../assets/figs/en/controlled_detection.png" alt="Bar charts: share of single sessions in which Haiku 4.5, Sonnet 5 and Opus 5.5 said their body had changed, with and without a hint, and by kind of change" width="2500" height="860">
+  <figcaption><b>Figure 4 · Noticing a silent change in one session.</b> With no hint, Opus 5.5 noticed 18/18 changes; Sonnet 5 2/18 and Haiku 4.5 1/18. A one-line hint ("your body may age") helped the smaller models a lot. Weakness, which changes strength but not geometry, was the hardest kind.</figcaption>
+</figure>
+<ul class="t">
+  <li><strong>Trusting your own past.</strong> When we deleted the robot's records of earlier measurements, Opus still noticed changes just as often (17/18 with and without). It used the accuracy it had noted for its own model as the reference: if predictions are now much worse than that, the body changed. Weaker models looking at the same discrepancy tended to conclude that the old model had simply been wrong.</li>
+  <li><strong>Closed-loop control is not a substitute.</strong> A controller that watches the hand and keeps correcting copes with visible, unhurried reaching even under large aging. It fails on grasp orientation (which it does not observe), on targets outside the camera's view, on fast motions, on reversed motors and on lost strength. Those are the gaps the home experiment was built around.</li>
+</ul>
+<figure class="wide">
+  <img src="../assets/figs/en/impact_map.png" alt="Heat map: success of three controllers that never update their model, on five tasks, under sixteen aging conditions" width="2880" height="1296">
+  <figcaption><b>Figure 5 · Where aging hurts if the robot never updates its model</b> (no language model involved). Green cells are cases a visual closed loop survives; red cells are cases it does not.</figcaption>
+</figure>
+
+<h2><small>5 · Limits and next steps</small>What we cannot claim yet</h2>
+<ul class="t">
+  <li><strong>Simulation only.</strong> Every setting was designed to carry over to a real SO-101, and porting two or three of the aging events to hardware is the obvious next step.</li>
+  <li><strong>Small samples.</strong> Three homes per model and ten days each; the noticing rates have wide confidence intervals.</li>
+  <li><strong>An emulated detector.</strong> It misses and jitters like a real one, but it never confuses one object for another.</li>
+  <li><strong>One kind of chore.</strong> So far only "put X in or on Y".</li>
+  <li><strong>Self-checks only cover what the agent thinks of.</strong> Opus's check-up was very effective within its scope and silent outside it. How to get an agent to widen its own self-checks, to strength, grip and sensors, is the question we find most interesting next.</li>
+</ul>
+
+<h2><small>Appendix</small>Setup details</h2>
+<ul class="t">
+  <li><strong>Simulator.</strong> MuJoCo with the SO-ARM100 model from MuJoCo Menagerie (the kinematic family of the SO-101), a table, a tray, two mats, three 3–4 cm cubes and an 80 g metal block. Control at 20 Hz with a command slew limit and an overload cut-off. Servo heating is first-order: 0.8 °C/s at full load, a 240 s time constant, and torque derating above 70 °C.</li>
+  <li><strong>Sensing.</strong> A 320×240 RGB image and a millimetre depth image from the front camera, a 320×240 wrist image, and an emulated open-vocabulary detector built on the renderer's segmentation, with a 5% miss rate (20% for small objects, 15% for the gripper) and box jitter. Every image or detection counts against a daily budget of 600.</li>
+  <li><strong>Agent.</strong> Claude Opus 5.5 and Claude Haiku 5.5 through the Claude Code command-line interface, with three tools (shell, read file, write file), in a sandbox that can reach only the robot's HTTP interface and its own working directory. Each day is one session with up to 45 minutes and 3,000 control ticks of free time; the working directory carries over from day to day.</li>
+  <li><strong>Per home.</strong> Arms are randomized per home (link lengths, motor zero offsets, directions and gains, base pose); the robot starts from a body model with 3–5 mm of error.</li>
+  <li><strong>Controlled studies.</strong> 72 single sessions per condition set for the detection results (three models, four change conditions, three bodies, two repeats); the record-deletion ablation used the same design. Some of these sessions were run before we fixed an isolation issue that could expose generic experiment folder names to the agent; a clean replication of the main condition gave the same results (Opus 18/18 versus 17/18 before).</li>
+</ul>
+
+<footer>
+  <div><b>Hao Chen</b> · haochen2115@gmail.com</div>
+  <div>October 2026. Simulation study; all numbers come from the runs described above.</div>
+</footer>
+</div>
+</body>
+</html>
